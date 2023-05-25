@@ -1,0 +1,7 @@
+node_modules
+.env
+# Expo
+.expo
+generated
+web-build
+bare-apps
