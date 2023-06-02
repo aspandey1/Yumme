@@ -2,12 +2,15 @@ import { StyleSheet } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import FollowersScreen from "./FollowersScreen";
 import FollowingScreen from "./FollowingScreen";
+import { useRoute } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
 function FollowingFollowerTopTab() {
+  const route = useRoute();
   return (
     <Tab.Navigator
+      initialRouteName={route.params.routeName}
       screenOptions={{
         tabBarIndicatorStyle: { backgroundColor: "dodgerblue", height: 3 },
         tabBarStyle: {

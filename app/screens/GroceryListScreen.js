@@ -93,7 +93,7 @@ function GroceryListScreen() {
         alert(error.message);
       });
   };
-  checkbox = async (index, status) => {
+  checkbox = async (index) => {
     tempArr = [...grocery];
     tempArr[index].checked = !tempArr[index].checked;
     setGrocery(tempArr);
@@ -150,12 +150,12 @@ function GroceryListScreen() {
                     unfillColor="#FFFFFF"
                     innerIconStyle={{ borderWidth: 0 }}
                     isChecked={data.checked}
-                    onPress={() => checkbox(index, data.checked)}
+                    onPress={() => checkbox(index)}
                   />
                 </View>
                 <View style={{ maxWidth: "50%" }}>
                   <Text style={[styles.listText, { color: "white" }]}>
-                    {index + 1}. {data.item}
+                    {data.item}
                   </Text>
                 </View>
                 <View style={[styles.quantityContainer]}>

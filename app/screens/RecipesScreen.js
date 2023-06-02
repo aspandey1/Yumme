@@ -17,6 +17,7 @@ const RecipesScreen = (e) => {
 
   const [userInput, setUserInput] = useState();
   const [response, setResponse] = useState([]);
+
   const searchRecipe = () => {
     let options = {
       method: "GET",
@@ -76,6 +77,7 @@ const RecipesScreen = (e) => {
               </View>
             </View>
           )}
+          keyExtractor={(item) => item.id}
         />
       </View>
     </View>

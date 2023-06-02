@@ -7,6 +7,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import FollowingScreen from "../screens/FollowingScreen";
 import { useNavigation } from "@react-navigation/native";
 import { firebase } from "../../firebaseConfig";
 
@@ -46,7 +47,7 @@ export const ProfileBody = () => {
         <View style={styles.profileData}>
           <TouchableWithoutFeedback
             onPress={() => {
-              navigation.navigate("FFTopTab");
+              navigation.navigate("FFTopTab", { routeName: "Followers" });
             }}
           >
             <View style={styles.followers}>
@@ -58,10 +59,16 @@ export const ProfileBody = () => {
             <Text style={styles.numPosts}>{user.recipesCount}</Text>
             <Text>Recipes</Text>
           </View>
-          <View style={styles.following}>
-            <Text style={styles.numFollowing}>{user.followingCount}</Text>
-            <Text>Following</Text>
-          </View>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              navigation.navigate("FFTopTab", { routeName: "Following" });
+            }}
+          >
+            <View style={styles.following}>
+              <Text style={styles.numFollowing}>{user.followingCount}</Text>
+              <Text>Following</Text>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
       </View>
     </View>
