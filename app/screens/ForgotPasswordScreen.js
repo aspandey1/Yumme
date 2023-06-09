@@ -28,7 +28,10 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : null}
+    >
       <Text style={styles.forgotText}>Password Reset</Text>
       <Text style={styles.forgotSubText}>Please enter your email</Text>
       {/* Text Inputs */}
@@ -63,6 +66,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#eed9c4",
+    marginTop: -150,
   },
   forgotText: {
     fontSize: 40,
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     alignSelf: "baseline",
     paddingLeft: "10%",
     color: "grey",
-    paddingBottom: 80,
+    paddingBottom: 50,
   },
   inputContainer: {
     width: "80%",

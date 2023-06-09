@@ -14,21 +14,20 @@ import { firebase } from "../../firebaseConfig";
 export const ProfileBody = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState("");
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection("Users")
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then((snapshot) => {
-        if (snapshot.exists) {
-          setUser(snapshot.data());
-        }
-      })
-      .catch((error) => {
-        alert(error.message);
-      });
-  }, []);
+
+  firebase
+    .firestore()
+    .collection("Users")
+    .doc(firebase.auth().currentUser.uid)
+    .get()
+    .then((snapshot) => {
+      if (snapshot.exists) {
+        setUser(snapshot.data());
+      }
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
 
   return (
     <View>

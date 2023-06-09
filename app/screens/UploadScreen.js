@@ -32,7 +32,6 @@ const UploadScreen = () => {
 
     if (!result.canceled) {
       const source = { uri: result.assets[0].uri };
-      console.log(source);
       setImage(source);
     }
   };

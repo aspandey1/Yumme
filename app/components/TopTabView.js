@@ -115,71 +115,84 @@ const TopTabView = () => {
 
     return (
       <View style={styles.container}>
-        <FlatList
-          data={user}
-          renderItem={({ item }) => (
-            <View style={styles.userContainer}>
-              <View style={styles.nameContainer}>
-                <Text style={styles.name}>{item.firstName}</Text>
-                <Text style={styles.name}>{item.lastName}</Text>
-              </View>
-              <Image source={{ uri: item.downloadURL }} style={styles.image} />
-              <Text style={styles.description}>
-                Description: {item.description}
-              </Text>
-              <View style={styles.ratingContainer}>
-                <TouchableOpacity
-                  onPress={() => handleLike(item.id)}
-                  style={styles.likesButton}
-                >
-                  <Image
-                    source={require("../assets/likeLogo.png")}
-                    style={styles.likeButtonImage}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.likeText}>{item.likes}</Text>
-                <TouchableOpacity
-                  onPress={() => handleDislike(item.id)}
-                  style={styles.dislikesButton}
-                >
-                  <Image
-                    source={require("../assets/dislikeLogo.png")}
-                    style={styles.dislikeButtonImage}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.dislikeText}>{item.dislikes}</Text>
-                <TouchableOpacity
-                  onPress={() => goToCommentScreen(item.id)}
-                  style={styles.commentButton}
-                  activeOpacity={1}
-                >
-                  <Image
-                    source={require("../assets/commentLogo.png")}
-                    style={styles.commentButtonImage}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFavorites(item.id)}
-                  style={styles.starButton}
-                >
-                  <View
-                    style={[
-                      styles.starContainer,
-                      { backgroundColor: isPressed ? "yellow" : "transparent" },
-                    ]}
+        {user.length > 0 ? (
+          <FlatList
+            data={user}
+            renderItem={({ item }) => (
+              <View style={styles.userContainer}>
+                <View style={styles.nameContainer}>
+                  <Text style={styles.name}>{item.firstName}</Text>
+                  <Text style={styles.name}>{item.lastName}</Text>
+                </View>
+                <Image
+                  source={{ uri: item.downloadURL }}
+                  style={styles.image}
+                />
+                <Text style={styles.description}>
+                  Description: {item.description}
+                </Text>
+                <View style={styles.ratingContainer}>
+                  <TouchableOpacity
+                    onPress={() => handleLike(item.id)}
+                    style={styles.likesButton}
                   >
-                    <Icon
-                      name="star"
-                      size={30}
-                      color={isPressed ? "black" : "black"}
+                    <Image
+                      source={require("../assets/likeLogo.png")}
+                      style={styles.likeButtonImage}
                     />
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                  <Text style={styles.likeText}>{item.likes}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleDislike(item.id)}
+                    style={styles.dislikesButton}
+                  >
+                    <Image
+                      source={require("../assets/dislikeLogo.png")}
+                      style={styles.dislikeButtonImage}
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.dislikeText}>{item.dislikes}</Text>
+                  <TouchableOpacity
+                    onPress={() => goToCommentScreen(item.id)}
+                    style={styles.commentButton}
+                    activeOpacity={1}
+                  >
+                    <Image
+                      source={require("../assets/commentLogo.png")}
+                      style={styles.commentButtonImage}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleFavorites(item.id)}
+                    style={styles.starButton}
+                  >
+                    <View
+                      style={[
+                        styles.starContainer,
+                        {
+                          backgroundColor: isPressed ? "yellow" : "transparent",
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name="star"
+                        size={30}
+                        color={isPressed ? "black" : "black"}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ color: "white", fontSize: 20 }}>No posts yet</Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -192,35 +205,37 @@ const TopTabView = () => {
       userDoc.get().then((userData) => {
         const favorites = userData.data().favorites || [];
         const PostRef = firebase.firestore().collection("Posts");
-        const favPosts = PostRef.where(
-          firebase.firestore.FieldPath.documentId(),
-          "in",
-          favorites
-        );
-
-        favPosts.onSnapshot((querySnapshot) => {
-          const posts = [];
-          querySnapshot.forEach((doc) => {
-            const {
-              firstName,
-              lastName,
-              downloadURL,
-              description,
-              likes,
-              dislikes,
-            } = doc.data();
-            posts.push({
-              id: doc.id,
-              firstName,
-              lastName,
-              downloadURL,
-              description,
-              likes,
-              dislikes,
+        let favPosts;
+        if (favorites.length != 0) {
+          favPosts = PostRef.where(
+            firebase.firestore.FieldPath.documentId(),
+            "in",
+            favorites
+          );
+          favPosts.onSnapshot((querySnapshot) => {
+            const posts = [];
+            querySnapshot.forEach((doc) => {
+              const {
+                firstName,
+                lastName,
+                downloadURL,
+                description,
+                likes,
+                dislikes,
+              } = doc.data();
+              posts.push({
+                id: doc.id,
+                firstName,
+                lastName,
+                downloadURL,
+                description,
+                likes,
+                dislikes,
+              });
             });
+            setFavorites(posts);
           });
-          setFavorites(posts);
-        });
+        }
       });
     }, []);
 
@@ -271,71 +286,86 @@ const TopTabView = () => {
 
     return (
       <View style={styles.container}>
-        <FlatList
-          data={favorites}
-          renderItem={({ item }) => (
-            <View style={styles.userContainer}>
-              <View style={styles.nameContainer}>
-                <Text style={styles.name}>{item.firstName}</Text>
-                <Text style={styles.name}>{item.lastName}</Text>
-              </View>
-              <Image source={{ uri: item.downloadURL }} style={styles.image} />
-              <Text style={styles.description}>
-                Description: {item.description}
-              </Text>
-              <View style={styles.ratingContainer}>
-                <TouchableOpacity
-                  onPress={() => handleLike(item.id)}
-                  style={styles.likesButton}
-                >
-                  <Image
-                    source={require("../assets/likeLogo.png")}
-                    style={styles.likeButtonImage}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.likeText}>{item.likes}</Text>
-                <TouchableOpacity
-                  onPress={() => handleDislike(item.id)}
-                  style={styles.dislikesButton}
-                >
-                  <Image
-                    source={require("../assets/dislikeLogo.png")}
-                    style={styles.dislikeButtonImage}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.dislikeText}>{item.dislikes}</Text>
-                <TouchableOpacity
-                  onPress={() => goToCommentScreen(item.id)}
-                  style={styles.commentButton}
-                  activeOpacity={1}
-                >
-                  <Image
-                    source={require("../assets/commentLogo.png")}
-                    style={styles.commentButtonImage}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleFavorites(item.id)}
-                  style={styles.starButton}
-                >
-                  <View
-                    style={[
-                      styles.starContainer,
-                      { backgroundColor: isPressed ? "yellow" : "transparent" },
-                    ]}
+        {favorites.length > 0 ? (
+          <FlatList
+            data={favorites}
+            renderItem={({ item }) => (
+              <View style={styles.userContainer}>
+                <View style={styles.nameContainer}>
+                  <Text style={styles.name}>{item.firstName}</Text>
+                  <Text style={styles.name}>{item.lastName}</Text>
+                </View>
+                <Image
+                  source={{ uri: item.downloadURL }}
+                  style={styles.image}
+                />
+                <Text style={styles.description}>
+                  Description: {item.description}
+                </Text>
+                <View style={styles.ratingContainer}>
+                  <TouchableOpacity
+                    onPress={() => handleLike(item.id)}
+                    style={styles.likesButton}
                   >
-                    <Icon
-                      name="star"
-                      size={30}
-                      color={isPressed ? "black" : "black"}
+                    <Image
+                      source={require("../assets/likeLogo.png")}
+                      style={styles.likeButtonImage}
                     />
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                  <Text style={styles.likeText}>{item.likes}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleDislike(item.id)}
+                    style={styles.dislikesButton}
+                  >
+                    <Image
+                      source={require("../assets/dislikeLogo.png")}
+                      style={styles.dislikeButtonImage}
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.dislikeText}>{item.dislikes}</Text>
+                  <TouchableOpacity
+                    onPress={() => goToCommentScreen(item.id)}
+                    style={styles.commentButton}
+                    activeOpacity={1}
+                  >
+                    <Image
+                      source={require("../assets/commentLogo.png")}
+                      style={styles.commentButtonImage}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleFavorites(item.id)}
+                    style={styles.starButton}
+                  >
+                    <View
+                      style={[
+                        styles.starContainer,
+                        {
+                          backgroundColor: isPressed ? "yellow" : "transparent",
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name="star"
+                        size={30}
+                        color={isPressed ? "black" : "black"}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
+            )}
+            keyExtractor={(item) => item.id}
+          />
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ color: "white", fontSize: 20 }}>
+              No favorites yet
+            </Text>
+          </View>
+        )}
       </View>
     );
   };

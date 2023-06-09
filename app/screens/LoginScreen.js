@@ -45,7 +45,10 @@ const LoginScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : null}
+    >
       <Text style={styles.loginText}>Yumme</Text>
       <Text style={styles.loginSubText}>Please sign in to continue</Text>
       {/* Text Inputs */}
@@ -112,7 +115,7 @@ const styles = StyleSheet.create({
   loginSubText: {
     fontSize: 16,
     color: "black",
-    paddingBottom: 80,
+    paddingBottom: 50,
   },
   inputContainer: {
     width: "80%",

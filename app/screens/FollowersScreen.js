@@ -65,7 +65,6 @@ const FollowersScreen = () => {
             followingCount,
             recipesCount,
             userImage,
-            key: `${keyIterator++}`,
           });
         }
       });
@@ -85,50 +84,81 @@ const FollowersScreen = () => {
     });
   };
 
-  const removeFollower = (key) => {
-    currProfileArr = [currProfile];
-    usersArr = [...users];
-    followerArr = [...tempArr];
-    for (let i = 0; i < followerArr.length; i++) {
-      if (followerArr[i] == users[key].uid) {
-        followerArr.splice(i, 1);
-        usersArr.splice(i, 1);
-      }
+  const removeFollower = async (key) => {
+    const userTemp = [...users];
+    const currTemp = { ...currProfile };
+
+    currTemp.followers.splice(key, 1);
+    const newNum = currTemp.followersCount - 1;
+    currTemp.followersCount = newNum;
+
+    try {
+      await firebase
+        .firestore()
+        .collection("Users")
+        .doc(firebase.auth().currentUser.uid)
+        .update({
+          followersCount: newNum,
+          followers: currTemp.followers,
+        });
+    } catch (error) {
+      alert(error.message);
     }
-    currProfileArr.followers = followerArr;
-    setCurrProfile(currProfileArr);
-    setUsers(usersArr);
+    setCurrProfile(currTemp);
   };
 
   return (
     <View style={styles.back}>
-      <FlatList
-        data={users}
-        renderItem={({ item }) => (
-          <View style={styles.container}>
-            <TouchableOpacity onPress={() => goToOtherProfile(item.key)}>
-              <View style={styles.followerContainer}>
-                <Image style={styles.image} source={{ uri: item.userImage }} />
-                <View style={styles.nameContainer}>
-                  <Text style={styles.name}>
-                    {item.firstName} {item.lastName}
-                  </Text>
-                  <Text style={styles.handle}>{item.handle}</Text>
+      {users.length > 0 ? (
+        <FlatList
+          data={users}
+          renderItem={({ item, index }) => (
+            <View style={styles.container}>
+              <TouchableOpacity onPress={() => goToOtherProfile(index)}>
+                <View style={styles.followerContainer}>
+                  <Image
+                    style={styles.image}
+                    source={{ uri: item.userImage }}
+                  />
+                  <View style={styles.nameContainer}>
+                    <Text style={styles.name}>
+                      {item.firstName} {item.lastName}
+                    </Text>
+                    <Text style={styles.handle}>{item.handle}</Text>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button}>
+                      <Button
+                        title="Remove"
+                        onPress={() => removeFollower(index)}
+                        style={styles.buttonColor}
+                      ></Button>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity style={styles.button}>
-                    <Button
-                      title="Remove"
-                      onPress={() => removeFollower(item.key)}
-                      style={styles.buttonColor}
-                    ></Button>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-      ></FlatList>
+              </TouchableOpacity>
+            </View>
+          )}
+        ></FlatList>
+      ) : (
+        <View
+          style={{
+            color: "white",
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 22,
+            }}
+          >
+            You currently have no followers
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

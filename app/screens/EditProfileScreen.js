@@ -27,36 +27,62 @@ const EditProfileScreen = ({ route }) => {
   const ref_lname = useRef();
 
   const updateUser = async (userFirstName, userLastName) => {
-    const response = await fetch(image.uri);
-    const blob = await response.blob();
-    const filename = image.uri.substring(image.uri.lastIndexOf("/") + 1);
+    const push = {};
 
-    // Upload the image to Firebase Storage
-    const ref = firebase.storage().ref().child(filename);
-    const snapshot = await ref.put(blob);
+    if (image != null) {
+      const response = await fetch(image.uri);
+      const blob = await response.blob();
+      const filename = image.uri.substring(image.uri.lastIndexOf("/") + 1);
 
-    // Get the download URL of the uploaded image
-    const userImage = await snapshot.ref.getDownloadURL();
-    try {
-      firebase
-        .firestore()
-        .collection("Users")
-        .doc(firebase.auth().currentUser.uid)
-        .update({
-          firstName: userFirstName,
-          lastName: userLastName,
-          userImage: userImage,
-        });
-      navigation.push("UserProfile", {
-        firstName: userFirstName,
-        lastName: userLastName,
-        userImage: userImage,
-      });
-      Alert.alert("Profile Updated!");
-      navigation.navigate("UserProfile");
-    } catch (error) {
-      alert(error.message);
+      // Upload the image to Firebase Storage
+      const ref = firebase.storage().ref().child(filename);
+      const snapshot = await ref.put(blob);
+
+      // Get the download URL of the uploaded image
+      const userImage = await snapshot.ref.getDownloadURL();
+      try {
+        await firebase
+          .firestore()
+          .collection("Users")
+          .doc(firebase.auth().currentUser.uid)
+          .update({
+            userImage: userImage,
+          });
+        push["userImage"] = userImage;
+      } catch (error) {
+        alert(error.message);
+      }
     }
+    if (userFirstName != "") {
+      try {
+        await firebase
+          .firestore()
+          .collection("Users")
+          .doc(firebase.auth().currentUser.uid)
+          .update({
+            firstName: userFirstName,
+          });
+        push["firstName"] = userFirstName;
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    if (userLastName != "") {
+      try {
+        await firebase
+          .firestore()
+          .collection("Users")
+          .doc(firebase.auth().currentUser.uid)
+          .update({
+            lastName: userLastName,
+          });
+        push["lastName"] = lastName;
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+    Alert.alert("Profile Updated!");
+    navigation.push("UserProfile", push);
   };
 
   const pickImage = async () => {
@@ -74,12 +100,14 @@ const EditProfileScreen = ({ route }) => {
   };
 
   handleLogout = async () => {
-    firebase.auth().signOut();
     navigation.navigate("Login");
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : null}
+    >
       <View style={styles.navigationContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
@@ -109,11 +137,20 @@ const EditProfileScreen = ({ route }) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <KeyboardAvoidingView style={styles.keyboard} behavior="padding">
-        <View style={{ paddingBottom: 50 }}>
+      <View style={styles.inputContainer}>
+        <View
+          style={{
+            flexDirection: "row",
+            borderTopColor: "black",
+            borderTopWidth: 2,
+            padding: 15,
+            marginBottom: 5,
+          }}
+        >
           <View style={styles.FnameDecor}>
-            <Text style={{ color: "black" }}>First Name</Text>
-            <Icon2 name="pencil" size={20} />
+            <Text style={{ color: "black", fontSize: 20, fontWeight: "bold" }}>
+              First Name
+            </Text>
           </View>
           <TextInput
             defaultValue={firstName}
@@ -123,10 +160,18 @@ const EditProfileScreen = ({ route }) => {
             style={styles.input}
           />
         </View>
-        <View>
+        <View
+          style={{
+            flexDirection: "row",
+            borderTopColor: "black",
+            borderTopWidth: 2,
+            padding: 15,
+          }}
+        >
           <View style={styles.LnameDecor}>
-            <Text style={{ color: "black" }}>Last Name</Text>
-            <Icon2 name="pencil" size={20} />
+            <Text style={{ color: "black", fontSize: 20, fontWeight: "bold" }}>
+              Last Name
+            </Text>
           </View>
           <TextInput
             defaultValue={lastName}
@@ -135,7 +180,7 @@ const EditProfileScreen = ({ route }) => {
             style={styles.input}
           />
         </View>
-      </KeyboardAvoidingView>
+      </View>
       <View style={styles.logoutContainer}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -146,7 +191,7 @@ const EditProfileScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -156,6 +201,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#eed9c4",
+    width: "100%",
   },
   navigationContainer: {
     flexDirection: "row",
@@ -165,21 +211,24 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   input: {
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderColor: "#CDCDCD",
+    fontSize: 20,
+
+    width: "100%",
+    marginLeft: 45,
+  },
+  inputContainer: {
+    width: "100%",
   },
   pictureContainer: {
     padding: 20,
     alignItems: "center",
+    width: "100%",
   },
   FnameDecor: {
     flexDirection: "row",
-    width: 200,
   },
   LnameDecor: {
     flexDirection: "row",
-    width: "100%",
   },
   userDecor: {
     flexDirection: "row",
@@ -204,11 +253,9 @@ const styles = StyleSheet.create({
   },
   logoutContainer: {
     flex: 1,
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
-  },
-  keyboard: {
-    marginTop: 10,
   },
 });
 

@@ -44,7 +44,6 @@ const RecipeShowScreen = () => {
               <Text style={styles.ingredients}>{item}</Text>
             </View>
           )}
-          keyExtractor={(item) => item.id}
         />
         <Text style={styles.ingredientsTitle}>Instructions</Text>
         <FlatList
@@ -60,7 +59,6 @@ const RecipeShowScreen = () => {
               </Text>
             </View>
           )}
-          keyExtractor={(item) => item.id}
         />
       </View>
     </ScrollView>

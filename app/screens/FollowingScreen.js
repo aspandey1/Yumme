@@ -87,32 +87,45 @@ const FollowersScreen = () => {
 
   return (
     <View style={styles.back}>
-      <FlatList
-        data={users}
-        renderItem={({ item }) => (
-          <View style={styles.container}>
-            <TouchableOpacity onPress={() => goToOtherProfile(item.key)}>
-              <View style={styles.followerContainer}>
-                <Image style={styles.image} source={{ uri: item.userImage }} />
-                <View style={styles.nameContainer}>
-                  <Text style={styles.name}>
-                    {item.firstName} {item.lastName}
-                  </Text>
-                  <Text style={styles.handle}>{item.handle}</Text>
+      {users.length > 0 ? (
+        <FlatList
+          data={users}
+          renderItem={({ item }) => (
+            <View style={styles.container}>
+              <TouchableOpacity onPress={() => goToOtherProfile(item.key)}>
+                <View style={styles.followerContainer}>
+                  <Image
+                    style={styles.image}
+                    source={{ uri: item.userImage }}
+                  />
+                  <View style={styles.nameContainer}>
+                    <Text style={styles.name}>
+                      {item.firstName} {item.lastName}
+                    </Text>
+                    <Text style={styles.handle}>{item.handle}</Text>
+                  </View>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button}>
+                      <Button
+                        title="Following"
+                        style={styles.buttonColor}
+                      ></Button>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity style={styles.button}>
-                    <Button
-                      title="Following"
-                      style={styles.buttonColor}
-                    ></Button>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-      ></FlatList>
+              </TouchableOpacity>
+            </View>
+          )}
+        ></FlatList>
+      ) : (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ color: "white", fontSize: 22 }}>
+            You are not following anyone
+          </Text>
+        </View>
+      )}
     </View>
   );
 };

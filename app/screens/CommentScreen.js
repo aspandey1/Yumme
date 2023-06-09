@@ -63,7 +63,7 @@ const Comment = ({ route }) => {
           setNewComment("");
         })
         .catch((error) => {
-          console.error("Error adding comment: ", error);
+          alert(error.message);
         });
     }
   };

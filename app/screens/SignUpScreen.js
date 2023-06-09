@@ -2,7 +2,6 @@ import {
   StyleSheet,
   View,
   Text,
-  NativeModules,
   TextInput,
   KeyboardAvoidingView,
   TouchableOpacity,
@@ -41,7 +40,6 @@ function SignUpScreen() {
     userLastName,
     userHandle
   ) => {
-    let encryptedPassword = encryptedPasswordFunction(userPassword);
     await firebase
       .auth()
       .createUserWithEmailAndPassword(userEmail, userPassword)
@@ -56,49 +54,48 @@ function SignUpScreen() {
       })
       .catch((error) => {
         alert(error.message);
-      })
-      .then(() => {
-        firebase
-          .firestore()
-          .collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .set({
-            firstName: userFirstName,
-            lastName: userLastName,
-            email: userEmail,
-            password: userPassword,
-            handle: userHandle,
-            favorites: [],
-            favoritesCount: 0,
-            followingCount: 0,
-            followersCount: 0,
-            following: [],
-            followers: [],
-            recipesCount: 0,
-            recipes: [],
-            uid: firebase.auth().currentUser.uid,
-            userImage:
-              "https://firebasestorage.googleapis.com/v0/b/yumme-36fa8.appspot.com/o/661F4AC0-84B0-4DC6-94BD-BC91F787CE2D.jpg?alt=media&token=4567f8ee-a385-4bc3-b6bc-960e450377d3",
-          })
-          .then(() => {
-            firebase
-              .firestore()
-              .collection("GrocerList")
-              .doc(firebase.auth().currentUser.uid)
-              .set({
-                GroceryItem: [],
-              });
-            firebase.firestore().collection("Users").orderBy(" ", "desc");
-            navigation.navigate("Login");
-          });
-      })
-      .catch((error) => {
-        alert(error.message);
       });
+
+    firebase
+      .firestore()
+      .collection("Users")
+      .doc(firebase.auth().currentUser.uid)
+      .set({
+        firstName: userFirstName,
+        lastName: userLastName,
+        email: userEmail,
+        password: userPassword,
+        handle: userHandle,
+        favorites: [],
+        favoritesCount: 0,
+        followingCount: 0,
+        followersCount: 0,
+        following: [],
+        followers: [],
+        recipesCount: 0,
+        recipes: [],
+        uid: firebase.auth().currentUser.uid,
+        userImage:
+          "https://firebasestorage.googleapis.com/v0/b/yumme-36fa8.appspot.com/o/661F4AC0-84B0-4DC6-94BD-BC91F787CE2D.jpg?alt=media&token=4567f8ee-a385-4bc3-b6bc-960e450377d3",
+      });
+
+    firebase
+      .firestore()
+      .collection("GroceryList")
+      .doc(firebase.auth().currentUser.uid)
+      .set({
+        GroceryItem: [],
+      });
+    firebase.firestore().collection("Users").orderBy(" ", "desc");
+    navigation.navigate("Login");
   };
   return (
-    <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <Text style={styles.createAccountText}>Create Account</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : null}
+    >
+      <Text style={styles.loginText}>Create Account</Text>
+      <Text style={styles.loginSubText}>Please fill out form below</Text>
       {/* Text Inputs */}
 
       <View style={styles.inputContainer}>
@@ -171,9 +168,17 @@ function SignUpScreen() {
   );
 }
 
-const { StatusBarManager } = NativeModules; // Used to get StatusBar Height on Andriod
-
 const styles = StyleSheet.create({
+  loginText: {
+    fontSize: 40,
+    fontWeight: "bold",
+    paddingBottom: 8,
+  },
+  loginSubText: {
+    fontSize: 16,
+    color: "black",
+    marginBottom: 35,
+  },
   container: {
     flex: 1,
     alignItems: "center",
@@ -185,7 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "baseline",
     paddingLeft: "10%",
-    marginBottom: 50,
+    marginBottom: 110,
   },
   inputContainer: {
     width: "80%",
@@ -203,7 +208,8 @@ const styles = StyleSheet.create({
     width: "80%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 20,
+    marginBottom: 80,
   },
   button: {
     backgroundColor: "black",

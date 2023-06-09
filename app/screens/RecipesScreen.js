@@ -14,11 +14,15 @@ import { useNavigation } from "@react-navigation/native";
 
 const RecipesScreen = (e) => {
   const navigation = useNavigation();
-
+  const [search, setSearch] = useState(false);
   const [userInput, setUserInput] = useState();
   const [response, setResponse] = useState([]);
+  let message = "";
+  if (search == false) message = "Search for a recipe above";
+  else message = "No results found";
 
   const searchRecipe = () => {
+    setSearch(true);
     let options = {
       method: "GET",
       headers: { "x-api-key": RECIPE_API_KEY },
@@ -32,7 +36,7 @@ const RecipesScreen = (e) => {
         setResponse(data);
       })
       .catch((err) => {
-        console.log(`error ${err}`);
+        alert(err.message);
       });
   };
   return (
@@ -55,30 +59,35 @@ const RecipesScreen = (e) => {
         ></TextInput>
       </View>
       <View style={styles.listContainer}>
-        <FlatList
-          data={response}
-          renderItem={({ item }) => (
-            <View style={styles.recipeContainer}>
-              <Text style={styles.title}>{item.title}</Text>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.push("Show", {
-                      title: item.title,
-                      ingredients: item.ingredients,
-                      instructions: item.instructions,
-                      servings: item.servings,
-                    });
-                  }}
-                  style={styles.button}
-                >
-                  <Text style={styles.buttonText}>View Recipe</Text>
-                </TouchableOpacity>
+        {response.length > 0 ? (
+          <FlatList
+            data={response}
+            renderItem={({ item }) => (
+              <View style={styles.recipeContainer}>
+                <Text style={styles.title}>{item.title}</Text>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.push("Show", {
+                        title: item.title,
+                        ingredients: item.ingredients,
+                        instructions: item.instructions,
+                        servings: item.servings,
+                      });
+                    }}
+                    style={styles.button}
+                  >
+                    <Text style={styles.buttonText}>View Recipe</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
+            )}
+          />
+        ) : (
+          <View style={{ alignItems: "center", marginTop: "65%" }}>
+            <Text style={{ fontSize: 25 }}>{message}</Text>
+          </View>
+        )}
       </View>
     </View>
   );

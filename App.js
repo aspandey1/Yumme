@@ -8,7 +8,6 @@ import DashboardScreen from "./app/screens/DashboardScreen";
 import RecipeShowScreen from "./app/screens/RecipeShowScreen";
 import RecipesScreen from "./app/screens/RecipesScreen";
 
-
 const Stack = createStackNavigator();
 
 function App() {
@@ -25,7 +24,7 @@ function App() {
         name="Forgot Password"
         component={ForgotPasswordScreen}
         options={{
-          title: " ",
+          title: "Forgot Password",
           headerStyle: {
             backgroundColor: "#eed9c4",
           },
@@ -35,7 +34,7 @@ function App() {
         name="Sign Up"
         component={SignUpScreen}
         options={{
-          title: " ",
+          title: "Sign Up",
           headerStyle: {
             backgroundColor: "#eed9c4",
           },

@@ -1,6 +1,5 @@
 import { View, StyleSheet } from "react-native";
 import React from "react";
-
 import { ProfileBody, ProfileButtons } from "../components/profile";
 import TopTabView from "../components/TopTabView";
 
