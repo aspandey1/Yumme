@@ -7,10 +7,15 @@ import {
   Alert,
   Image,
   TextInput,
+  ScrollView,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Keyboard,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from "../../firebaseConfig";
+import { useNavigation } from "@react-navigation/native";
 import "firebase/auth";
 
 backColor = "black";
@@ -18,9 +23,31 @@ cardColor = "#eed9c4";
 textColor = "black";
 
 const UploadScreen = () => {
+  const navigation = useNavigation();
   const [image, setImage] = useState(null);
   const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", async () => {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const source = { uri: result.assets[0].uri };
+        setImage(source);
+      } else {
+        navigation.goBack("Yumme");
+      }
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, []);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -37,6 +64,8 @@ const UploadScreen = () => {
   };
 
   const uploadPost = async () => {
+    if (description == "" || description == " " || description == null)
+      return alert("Please add description");
     setUploading(true);
     const response = await fetch(image.uri);
     const blob = await response.blob();
@@ -76,33 +105,58 @@ const UploadScreen = () => {
     Alert.alert("Photo Uploaded Successfully!");
     setImage(null);
     setDescription("");
+    navigation.goBack("Yumme");
   };
 
+  function handleKeyPress(e) {
+    if (e.nativeEvent.key == "Enter") {
+      e.preventDefault();
+      Keyboard.dismiss();
+    }
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity style={styles.selectButton} onPress={pickImage}>
-        <Text style={styles.buttonText}>Select an Image</Text>
-      </TouchableOpacity>
-      <View style={styles.imageContainer}>
-        {image && (
-          <Image
-            source={{ uri: image.uri }}
-            style={{ width: 300, height: 300 }}
-          />
-        )}
-        {image && (
-          <TextInput
-            style={styles.descriptionInput}
-            placeholder="Enter Description!"
-            value={description}
-            onChangeText={setDescription}
-          />
-        )}
-        <TouchableOpacity style={styles.uploadButton} onPress={uploadPost}>
-          <Text style={styles.buttonText}>Upload Image</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    <KeyboardAvoidingView
+      keyboardVerticalOffset={120}
+      behavior={Platform.OS == "ios" ? "position" : "height" + 0.1}
+      style={styles.container}
+    >
+      {uploading == false ? (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.imageContainer}>
+            {image && (
+              <View style={{ width: "100%" }}>
+                <Image source={{ uri: image.uri }} style={styles.image} />
+                <TouchableOpacity
+                  onPress={pickImage}
+                  style={styles.selectButton}
+                >
+                  <Text style={styles.buttonText}>Replace Image</Text>
+                </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                  <TextInput
+                    style={styles.descriptionInput}
+                    placeholder="Enter Description..."
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline={true}
+                    onKeyPress={handleKeyPress}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={uploadPost}
+                >
+                  <Text style={styles.postText}>Upload Post</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      ) : (
+        <ActivityIndicator color="white" />
+      )}
+    </KeyboardAvoidingView>
   );
 };
 
@@ -111,52 +165,63 @@ export default UploadScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: backColor,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16,
+    backgroundColor: "black",
   },
   selectButton: {
-    backgroundColor: cardColor,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 24,
     marginBottom: 16,
-    marginTop: 8,
+    marginTop: 16,
+    alignSelf: "center",
   },
   uploadButton: {
-    backgroundColor: cardColor,
+    backgroundColor: "dodgerblue",
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 24,
+    borderRadius: 5,
     marginTop: 16,
+    width: "100%",
   },
   buttonText: {
-    color: textColor,
-    fontWeight: "bold",
+    color: "dodgerblue",
     fontSize: 18,
+    textDecorationLine: "underline",
   },
   imageContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
-    marginTop: 16,
+    marginBottom: 80,
+
+    padding: 10,
+    width: "100%",
+    height: "100%",
   },
   image: {
-    width: 300,
-    height: 300,
+    aspectRatio: 4 / 3,
     borderRadius: 8,
-    marginBottom: 16,
   },
   descriptionInput: {
     backgroundColor: cardColor,
-    width: 300,
+    width: "100%",
     height: 80,
     borderRadius: 8,
-    paddingHorizontal: 16,
-    textAlignVertical: "top",
     marginBottom: 16,
     marginTop: 8,
-    paddingTop: 8,
+    padding: 10,
+    paddingTop: 10,
+  },
+  postText: {
+    color: "white",
+    alignSelf: "center",
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  indicatorWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "black",
   },
 });

@@ -38,7 +38,10 @@ const TopTabView = () => {
     const [user, setUsers] = useState([]);
 
     useEffect(() => {
-      const PostRef = firebase.firestore().collection("Posts");
+      const PostRef = firebase
+        .firestore()
+        .collection("Posts")
+        .orderBy("createdAt", "desc");
       PostRef.onSnapshot((querySnapshot) => {
         const user = [];
 

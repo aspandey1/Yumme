@@ -6,6 +6,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { FontAwesome } from "@expo/vector-icons";
@@ -17,12 +18,19 @@ const RecipesScreen = (e) => {
   const [search, setSearch] = useState(false);
   const [userInput, setUserInput] = useState();
   const [response, setResponse] = useState([]);
+  const [loading, setLoading] = useState(false);
   let message = "";
   if (search == false) message = "Search for a recipe above";
   else message = "No results found";
 
-  const searchRecipe = () => {
+  function timeout(delay) {
+    return new Promise((res) => setTimeout(res, delay));
+  }
+
+  const searchRecipe = async () => {
     setSearch(true);
+    setLoading(true);
+    await timeout(500);
     let options = {
       method: "GET",
       headers: { "x-api-key": RECIPE_API_KEY },
@@ -34,11 +42,20 @@ const RecipesScreen = (e) => {
       .then((res) => res.json()) // parse response as JSON
       .then((data) => {
         setResponse(data);
+        setLoading(false);
       })
       .catch((err) => {
         alert(err.message);
       });
   };
+
+  if (loading == true)
+    return (
+      <View style={styles.indicatorWrapper}>
+        <ActivityIndicator />
+      </View>
+    );
+
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
@@ -63,7 +80,7 @@ const RecipesScreen = (e) => {
           <FlatList
             data={response}
             renderItem={({ item }) => (
-              <View style={styles.recipeContainer}>
+              <View style={[styles.recipeContainer, styles.elevation]}>
                 <Text style={styles.title}>{item.title}</Text>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
@@ -106,8 +123,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 18,
     height: 55,
-    marginBottom: 5,
     borderWidth: 2,
+    marginBottom: 10,
   },
   input: {
     height: "100%",
@@ -125,13 +142,13 @@ const styles = StyleSheet.create({
   },
   recipeContainer: {
     flexDirection: "row",
-    marginTop: 20,
     marginHorizontal: 18,
     paddingHorizontal: 15,
     paddingVertical: 28,
     alignItems: "center",
-    borderRadius: 2,
+    borderRadius: 10,
     backgroundColor: "#3D3D3D",
+    marginBottom: 10,
   },
   buttonContainer: {
     flex: 1,
@@ -145,8 +162,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   listContainer: {
-    marginBottom: 78,
     width: Dimensions.get("window").width,
+    height: "87%",
   },
   button: {
     backgroundColor: "#eed9c4",
@@ -156,6 +173,23 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: "bold",
+  },
+  indicatorWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#eed9c4",
+  },
+  elevation: {
+    elevation: 100,
+    shadowColor: "#171717",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 5,
   },
 });
 

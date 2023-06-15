@@ -8,6 +8,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { firebase } from "../../firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
@@ -23,13 +24,19 @@ const EditProfileScreen = ({ route }) => {
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const ref_lname = useRef();
 
   const updateUser = async (userFirstName, userLastName) => {
+    if (image == null && !userFirstName && !userLastName) {
+      navigation.navigate("UserProfile");
+      return;
+    }
     const push = {};
 
     if (image != null) {
+      setUploading(true);
       const response = await fetch(image.uri);
       const blob = await response.blob();
       const filename = image.uri.substring(image.uri.lastIndexOf("/") + 1);
@@ -81,6 +88,7 @@ const EditProfileScreen = ({ route }) => {
         alert(error.message);
       }
     }
+    setUploading(false);
     Alert.alert("Profile Updated!");
     navigation.push("UserProfile", push);
   };
@@ -102,6 +110,13 @@ const EditProfileScreen = ({ route }) => {
   handleLogout = async () => {
     navigation.navigate("Login");
   };
+
+  if (uploading == true)
+    return (
+      <View style={styles.indicatorWrapper}>
+        <ActivityIndicator />
+      </View>
+    );
 
   return (
     <KeyboardAvoidingView
@@ -127,10 +142,17 @@ const EditProfileScreen = ({ route }) => {
       </View>
 
       <View style={styles.pictureContainer}>
-        <Image
-          source={{ uri: userImage }}
-          style={{ width: 150, height: 150, borderRadius: 100 }}
-        />
+        {image == null ? (
+          <Image
+            source={{ uri: userImage }}
+            style={{ width: 150, height: 150, borderRadius: 100 }}
+          />
+        ) : (
+          <Image
+            source={{ uri: image.uri }}
+            style={{ width: 150, height: 150, borderRadius: 100 }}
+          />
+        )}
         <TouchableOpacity onPress={pickImage}>
           <Text style={{ color: "#3493D9", paddingTop: 10 }}>
             Change profile photo
@@ -256,6 +278,16 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+  },
+  indicatorWrapper: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#eed9c4",
   },
 });
 

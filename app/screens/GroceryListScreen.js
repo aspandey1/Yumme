@@ -142,7 +142,7 @@ function GroceryListScreen() {
           <Swipelist
             data={grocery}
             renderRightItem={(data, index) => (
-              <View style={[styles.items]}>
+              <View style={[styles.items, styles.elevation]}>
                 <View>
                   <BouncyCheckbox
                     size={30}
@@ -241,14 +241,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 18,
-    borderWidth: 2,
-    borderRadius: 4,
+    borderRadius: 10,
     backgroundColor: "#3D3D3D",
   },
   inputContainer: {
     width: "88%",
     marginTop: 20,
     margin: 10,
+    marginBottom: -5,
     flexDirection: "row",
     justifyContent: "center",
     alignSelf: "center",
@@ -273,6 +273,13 @@ const styles = StyleSheet.create({
   },
   listText: {
     fontSize: 20,
+  },
+  elevation: {
+    elevation: 100,
+    shadowColor: "#171717",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 5,
   },
 });
 

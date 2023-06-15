@@ -50,8 +50,8 @@ const FeedScreen = ({ navigation }) => {
     });
   }, []);
 
-  const goToUploadScreen = () => {
-    navigation.navigate("Upload");
+  const goToUploadScreen = async () => {
+    navigation.push("Upload");
   };
 
   const handleLike = (postId) => {

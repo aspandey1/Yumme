@@ -53,7 +53,7 @@ const RecipeShowScreen = () => {
             <View style={{ flexDirection: "row" }}>
               <Text style={[styles.instructions, { fontWeight: "bold" }]}>
                 {`Step ${index + 1}:`}
-                <Text style={[styles.instructions, { fontWeight: "regular" }]}>
+                <Text style={[styles.instructions, { fontWeight: "400" }]}>
                   {item}
                 </Text>
               </Text>
