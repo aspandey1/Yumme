@@ -47,47 +47,27 @@ const EditProfileScreen = ({ route }) => {
 
       // Get the download URL of the uploaded image
       const userImage = await snapshot.ref.getDownloadURL();
-      try {
-        await firebase
-          .firestore()
-          .collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .update({
-            userImage: userImage,
-          });
-        push["userImage"] = userImage;
-      } catch (error) {
-        alert(error.message);
-      }
+
+      push["userImage"] = userImage;
     }
     if (userFirstName != "") {
-      try {
-        await firebase
-          .firestore()
-          .collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .update({
-            firstName: userFirstName,
-          });
-        push["firstName"] = userFirstName;
-      } catch (error) {
-        alert(error.message);
-      }
+      push["firstName"] = userFirstName;
     }
     if (userLastName != "") {
-      try {
-        await firebase
-          .firestore()
-          .collection("Users")
-          .doc(firebase.auth().currentUser.uid)
-          .update({
-            lastName: userLastName,
-          });
-        push["lastName"] = lastName;
-      } catch (error) {
-        alert(error.message);
-      }
+      push["lastName"] = userLastName;
     }
+
+    try {
+      await firebase
+        .firestore()
+        .collection("Users")
+        .doc(firebase.auth().currentUser.uid)
+        .update(push);
+      push["userImage"] = userImage;
+    } catch (error) {
+      alert(error.message);
+    }
+
     setUploading(false);
     Alert.alert("Profile Updated!");
     navigation.push("UserProfile", push);
