@@ -3,7 +3,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
   Image,
   TextInput,
@@ -16,7 +15,8 @@ import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from "../../firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
-import "firebase/auth";
+import "react-native-get-random-values";
+import * as Crypto from "expo-crypto";
 
 backColor = "black";
 cardColor = "#eed9c4";
@@ -45,7 +45,6 @@ const UploadScreen = () => {
       }
     });
 
-    // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
   }, []);
 
@@ -64,17 +63,18 @@ const UploadScreen = () => {
   };
 
   const uploadPost = async () => {
+    setUploading(true);
+    const UUID = Crypto.randomUUID();
+
     if (description == "" || description == " " || description == null)
       return alert("Please add description");
-    setUploading(true);
+
     const response = await fetch(image.uri);
     const blob = await response.blob();
     const filename = image.uri.substring(image.uri.lastIndexOf("/") + 1);
-
     // Upload the image
     const ref = firebase.storage().ref().child(filename);
     const snapshot = await ref.put(blob);
-
     // Get URL of the uploaded image
     const downloadURL = await snapshot.ref.getDownloadURL();
 
@@ -86,21 +86,25 @@ const UploadScreen = () => {
     const firstName = userDoc.data().firstName;
     const lastName = userDoc.data().lastName;
     const email = userDoc.data().email;
-    const collectionRef = firebase.firestore().collection("Posts");
-    await collectionRef.add({
-      downloadURL,
-      description,
-      likes: 0,
-      dislikes: 0,
-      comments: "",
-      saves: "",
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      uid: uid,
-    });
 
+    const collectionRef = firebase.firestore().collection("Posts");
+    try {
+      await collectionRef.doc(UUID).set({
+        downloadURL,
+        description,
+        likes: 0,
+        dislikes: 0,
+        comments: "",
+        saves: "",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        uid: uid,
+      });
+    } catch (e) {
+      console.log(e.message);
+    }
     setUploading(false);
     Alert.alert("Photo Uploaded Successfully!");
     setImage(null);
@@ -110,10 +114,16 @@ const UploadScreen = () => {
 
   function handleKeyPress(e) {
     if (e.nativeEvent.key == "Enter") {
-      e.preventDefault();
       Keyboard.dismiss();
     }
   }
+
+  if (uploading == true)
+    return (
+      <View style={styles.indicatorWrapper}>
+        <ActivityIndicator />
+      </View>
+    );
 
   return (
     <KeyboardAvoidingView
@@ -121,41 +131,34 @@ const UploadScreen = () => {
       behavior={Platform.OS == "ios" ? "position" : "height" + 0.1}
       style={styles.container}
     >
-      {uploading == false ? (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.imageContainer}>
-            {image && (
-              <View style={{ width: "100%" }}>
-                <Image source={{ uri: image.uri }} style={styles.image} />
-                <TouchableOpacity
-                  onPress={pickImage}
-                  style={styles.selectButton}
-                >
-                  <Text style={styles.buttonText}>Replace Image</Text>
-                </TouchableOpacity>
-                <View style={{ flex: 1 }}>
-                  <TextInput
-                    style={styles.descriptionInput}
-                    placeholder="Enter Description..."
-                    value={description}
-                    onChangeText={setDescription}
-                    multiline={true}
-                    onKeyPress={handleKeyPress}
-                  />
-                </View>
-                <TouchableOpacity
-                  style={styles.uploadButton}
-                  onPress={uploadPost}
-                >
-                  <Text style={styles.postText}>Upload Post</Text>
-                </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.imageContainer}>
+          {image && (
+            <View style={{ width: "100%" }}>
+              <Image source={{ uri: image.uri }} style={styles.image} />
+              <TouchableOpacity onPress={pickImage} style={styles.selectButton}>
+                <Text style={styles.buttonText}>Replace Image</Text>
+              </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <TextInput
+                  style={styles.descriptionInput}
+                  placeholder="Enter Description..."
+                  value={description}
+                  onChangeText={setDescription}
+                  onKeyPress={handleKeyPress}
+                  multiline={true}
+                />
               </View>
-            )}
-          </View>
-        </ScrollView>
-      ) : (
-        <ActivityIndicator color="white" />
-      )}
+              <TouchableOpacity
+                style={styles.uploadButton}
+                onPress={uploadPost}
+              >
+                <Text style={styles.postText}>Upload Post</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };

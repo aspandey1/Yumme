@@ -1,6 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-
+import "react-native-get-random-values";
 import LoginScreen from "./app/screens/LoginScreen";
 import ForgotPasswordScreen from "./app/screens/ForgotPasswordScreen";
 import SignUpScreen from "./app/screens/SignUpScreen";
